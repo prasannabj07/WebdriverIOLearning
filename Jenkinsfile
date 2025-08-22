@@ -2,10 +2,9 @@ pipeline {
     agent any
 
     environment {
-    PATH = "/usr/local/bin:$PATH:./node_modules/.bin"
-    HEADLESS = 'true'
-}
-
+        PATH = "/usr/local/bin:$PATH:./node_modules/.bin"
+        HEADLESS = 'true' // CI/CD headless; locally can override with HEADLESS=false
+    }
 
     parameters {
         string(name: 'TEST_SUITE', defaultValue: 'smoke', description: 'Which test suite to run: smoke, regression, full')
@@ -37,6 +36,9 @@ pipeline {
                         tagExpression = "" // run all tests
                     }
 
+                    // Log which mode is running
+                    echo "Running tests with HEADLESS=${env.HEADLESS} and tagExpression='${tagExpression}'"
+
                     // Run WebDriverIO tests
                     sh "npx wdio run wdio.conf.ts --cucumberOpts.tagExpression '${tagExpression}'"
                 }
@@ -56,13 +58,14 @@ pipeline {
 
     post {
         always {
-            // JUnit xml optional if your tests generate XML
+            // JUnit xml for Jenkins test summary
             junit 'reports/**/*.xml'
         }
         failure {
-            mail to: 'your-email@example.com',
-                 subject: "❌ Jenkins Build Failed",
-                 body: "Check Jenkins job for details."
+            // Mail step commented out until SMTP is configured
+            // mail to: 'your-email@example.com',
+            //      subject: "❌ Jenkins Build Failed",
+            //      body: "Check Jenkins job for details."
         }
     }
 }
