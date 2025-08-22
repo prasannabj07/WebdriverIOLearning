@@ -5,6 +5,10 @@ pipeline {
         PATH = "$PATH:./node_modules/.bin"
     }
 
+    parameters {
+        string(name: 'TEST_SUITE', defaultValue: 'smoke', description: 'Which test suite to run: smoke, regression, full')
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -14,24 +18,32 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                sh 'npm ci' // clean install for CI pipelines
             }
         }
 
-        sstage('Run Smoke Tests') {
-    steps {
-        // Install dependencies first
-        sh 'npm install'
+        stage('Run Tests') {
+            steps {
+                script {
+                    // Choose tag expression based on TEST_SUITE parameter
+                    def tagExpression = ""
+                    if (params.TEST_SUITE == "smoke") {
+                        tagExpression = "@smoke"
+                    } else if (params.TEST_SUITE == "regression") {
+                        tagExpression = "@regression"
+                    } else {
+                        tagExpression = "" // run all tests
+                    }
 
-        // Run only @smoke tagged tests
-        sh 'npx wdio run wdio.conf.ts --cucumberOpts.tagExpression "@smoke"'
-    }
-}
-
+                    // Run WebDriverIO tests
+                    sh "npx wdio run wdio.conf.ts --cucumberOpts.tagExpression '${tagExpression}'"
+                }
+            }
+        }
 
         stage('Publish Reports') {
             steps {
-                // If using Allure reports
+                // Allure report
                 allure([
                     includeProperties: false,
                     results: [[path: 'allure-results']]
@@ -42,7 +54,8 @@ pipeline {
 
     post {
         always {
-            junit 'reports/**/*.xml' // optional if using JUnit xml
+            // JUnit xml optional if your tests generate XML
+            junit 'reports/**/*.xml'
         }
         failure {
             mail to: 'your-email@example.com',
