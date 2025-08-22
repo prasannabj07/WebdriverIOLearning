@@ -2,8 +2,10 @@ pipeline {
     agent any
 
     environment {
-    PATH = "/usr/local/bin:$PATH:./node_modules/.bin"
+    PATH = "/usr/local/bin:$PATH:./node_modules/.bin",
+    HEADLESS = 'true'
 }
+
 
     parameters {
         string(name: 'TEST_SUITE', defaultValue: 'smoke', description: 'Which test suite to run: smoke, regression, full')

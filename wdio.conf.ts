@@ -53,8 +53,14 @@ export const config: WebdriverIO.Config = {
     //
     capabilities: [{
         browserName: 'chrome',
-        acceptInsecureCerts: true
-    }],
+        'goog:chromeOptions': {
+            args: [
+                '--disable-gpu',
+                '--window-size=1920,1080',
+                ...(process.env.HEADLESS === 'true' ? ['--headless'] : [])
+            ]
+        }
+    }]
 
     //
     // ===================
