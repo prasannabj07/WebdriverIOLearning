@@ -60,7 +60,7 @@ export const config: WebdriverIO.Config = {
                 ...(process.env.HEADLESS === 'true' ? ['--headless'] : [])
             ]
         }
-    }]
+    }],
 
     //
     // ===================
