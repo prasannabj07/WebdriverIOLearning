@@ -2,8 +2,7 @@ pipeline {
     agent any
 
     environment {
-        PATH = "/usr/local/bin:$PATH:./node_modules/.bin"
-        HEADLESS = 'true'
+        PATH = "$PATH:./node_modules/.bin"
     }
 
     parameters {
@@ -13,35 +12,55 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'git@github.com:prasannabj07/WebdriverIOLearning.git'
+                git branch: 'main', url: 'git@github.com:username/your-repo.git'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm ci'
+                sh 'npm ci' // clean install for CI pipelines
             }
         }
 
         stage('Run Tests') {
             steps {
                 script {
-                    def tagExpression = params.TEST_SUITE == "smoke" ? "@smoke" : params.TEST_SUITE == "regression" ? "@regression" : ""
-                    echo "Running tests with HEADLESS=${env.HEADLESS} and tagExpression='${tagExpression}'"
+                    // Choose tag expression based on TEST_SUITE parameter
+                    def tagExpression = ""
+                    if (params.TEST_SUITE == "smoke") {
+                        tagExpression = "@smoke"
+                    } else if (params.TEST_SUITE == "regression") {
+                        tagExpression = "@regression"
+                    } else {
+                        tagExpression = "" // run all tests
+                    }
+
+                    // Run WebDriverIO tests
                     sh "npx wdio run wdio.conf.ts --cucumberOpts.tagExpression '${tagExpression}'"
                 }
             }
         }
 
+        stage('Publish Reports') {
+            steps {
+                // Allure report
+                allure([
+                    includeProperties: false,
+                    results: [[path: 'allure-results']]
+                ])
+            }
+        }
     }
 
     post {
         always {
-            // Record JUnit results first
+            // JUnit xml optional if your tests generate XML
             junit 'reports/**/*.xml'
-
-            // Allure reporting
-            step([$class: 'AllureReportPublisher', results: [[path: 'allure-results']]])
+        }
+        failure {
+            mail to: 'your-email@example.com',
+                 subject: "❌ Jenkins Build Failed",
+                 body: "Check Jenkins job for details."
         }
     }
 }

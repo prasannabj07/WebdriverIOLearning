@@ -53,13 +53,7 @@ export const config: WebdriverIO.Config = {
     //
     capabilities: [{
         browserName: 'chrome',
-        'goog:chromeOptions': {
-            args: [
-                '--disable-gpu',
-                '--window-size=1920,1080',
-                ...(process.env.HEADLESS === 'true' ? ['--headless'] : [])
-            ]
-        }
+        acceptInsecureCerts: true
     }],
 
     //
@@ -138,21 +132,11 @@ export const config: WebdriverIO.Config = {
     // Test reporter for stdout.
     // The only one supported by default is 'dot'
     // see also: https://webdriver.io/docs/dot-reporter
-    reporters: [
-        'spec', // console output
-    
-        // JUnit reporter for Jenkins
-        ['junit', {
-            outputDir: './reports',                     // folder where XMLs will be generated
-            outputFileFormat: (options) => `results-${options.cid}.xml`,
-        }],
-    
-        // Allure reporter
+    reporters: ['spec',
         ['allure', {
-            outputDir: 'allure-results',               // folder for Allure JSON results
-            disableWebdriverStepsReporting: true,      // don't include every WebDriver step
-            disableWebdriverScreenshotsReporting: false, // capture screenshots on failure
-            useCucumberStepReporter: true              // maps Cucumber steps nicely
+            outputDir: 'allure-results',
+            disableWebdriverStepsReporting: true,
+            disableWebdriverScreenshotsReporting: false,
         }]
     ],
 
@@ -164,11 +148,30 @@ export const config: WebdriverIO.Config = {
 
     // If you are using Cucumber you need to specify the location of your step definitions.
     cucumberOpts: {
-        require: ['./test/step-definitions/*.ts'],
-        format: ['junit:reports/results.xml'], // must match the Jenkinsfile path
-        tagExpression: '@smoke',
+        // <string[]> (file/dir) require files before executing features
+        require: ['./features/step-definitions/steps.ts'],
+        // <boolean> show full backtrace for errors
+        backtrace: false,
+        // <string[]> ("extension:module") require files with the given EXTENSION after requiring MODULE (repeatable)
+        requireModule: [],
+        // <boolean> invoke formatters without executing steps
+        dryRun: false,
+        // <boolean> abort the run on first failure
+        failFast: false,
+        // <string[]> Only execute the scenarios with name matching the expression (repeatable).
+        name: [],
+        // <boolean> hide step definition snippets for pending steps
+        snippets: true,
+        // <boolean> hide source uris
+        source: true,
+        // <boolean> fail if there are any undefined or pending steps
+        strict: false,
+        // <string> (expression) only execute the features or scenarios with tags matching the expression
+        tagExpression: 'smoke',
+        // <number> timeout for step definitions
         timeout: 60000,
-        ignoreUndefinedDefinitions: true
+        // <boolean> Enable this config to treat undefined definitions as warnings.
+        ignoreUndefinedDefinitions: false
     },
 
 
