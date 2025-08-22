@@ -57,15 +57,11 @@ pipeline {
     }
 
     post {
-        always {
-            // JUnit xml for Jenkins test summary
-            junit 'reports/**/*.xml'
-        }
-        failure {
-            // Mail step commented out until SMTP is configured
-            // mail to: 'your-email@example.com',
-            //      subject: "❌ Jenkins Build Failed",
-            //      body: "Check Jenkins job for details."
-        }
+    always {
+        junit 'reports/**/*.xml'
     }
+    failure {
+        echo "Build failed, no mail configured."
+    }
+}
 }
