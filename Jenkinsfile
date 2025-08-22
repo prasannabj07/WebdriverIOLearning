@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        nodejs "NodeJS_18" // name from Jenkins Global Tool Configuration
-    }
-
     environment {
         PATH = "$PATH:./node_modules/.bin"
     }
@@ -22,11 +18,16 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
-        steps {
-            sh 'npm run smoke'
-        }
+        sstage('Run Smoke Tests') {
+    steps {
+        // Install dependencies first
+        sh 'npm install'
+
+        // Run only @smoke tagged tests
+        sh 'npx wdio run wdio.conf.ts --cucumberOpts.tagExpression "@smoke"'
+    }
 }
+
 
         stage('Publish Reports') {
             steps {
