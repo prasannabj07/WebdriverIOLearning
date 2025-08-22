@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'git@github.com:username/your-repo.git'
+                git branch: 'main', url: 'git@github.com:prasannabj07/WebdriverIOLearning.git'
             }
         }
 
