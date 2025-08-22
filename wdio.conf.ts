@@ -139,15 +139,20 @@ export const config: WebdriverIO.Config = {
     // The only one supported by default is 'dot'
     // see also: https://webdriver.io/docs/dot-reporter
     reporters: [
-        'spec',
+        'spec', // console output
+    
+        // JUnit reporter for Jenkins
         ['junit', {
-            outputDir: './reports',       // folder where XMLs will be generated
-            outputFileFormat: (options) => `results-${options.cid}.xml`
+            outputDir: './reports',                     // folder where XMLs will be generated
+            outputFileFormat: (options) => `results-${options.cid}.xml`,
         }],
+    
+        // Allure reporter
         ['allure', {
-            outputDir: 'allure-results',
-            disableWebdriverStepsReporting: true,
-            disableWebdriverScreenshotsReporting: false,
+            outputDir: 'allure-results',               // folder for Allure JSON results
+            disableWebdriverStepsReporting: true,      // don't include every WebDriver step
+            disableWebdriverScreenshotsReporting: false, // capture screenshots on failure
+            useCucumberStepReporter: true              // maps Cucumber steps nicely
         }]
     ],
 

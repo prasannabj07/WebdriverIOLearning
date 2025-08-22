@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         PATH = "/usr/local/bin:$PATH:./node_modules/.bin"
-        HEADLESS = 'true' // CI/CD headless; locally can override with HEADLESS=false
+        HEADLESS = 'true'
     }
 
     parameters {
@@ -19,27 +19,15 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh 'npm ci' // clean install for CI pipelines
+                sh 'npm ci'
             }
         }
 
         stage('Run Tests') {
             steps {
                 script {
-                    // Choose tag expression based on TEST_SUITE parameter
-                    def tagExpression = ""
-                    if (params.TEST_SUITE == "smoke") {
-                        tagExpression = "@smoke"
-                    } else if (params.TEST_SUITE == "regression") {
-                        tagExpression = "@regression"
-                    } else {
-                        tagExpression = "" // run all tests
-                    }
-
-                    // Log which mode is running
+                    def tagExpression = params.TEST_SUITE == "smoke" ? "@smoke" : params.TEST_SUITE == "regression" ? "@regression" : ""
                     echo "Running tests with HEADLESS=${env.HEADLESS} and tagExpression='${tagExpression}'"
-
-                    // Run WebDriverIO tests
                     sh "npx wdio run wdio.conf.ts --cucumberOpts.tagExpression '${tagExpression}'"
                 }
             }
@@ -47,22 +35,18 @@ pipeline {
 
         stage('Publish Reports') {
             steps {
-                // Allure report
-                allure([
-                    includeProperties: false,
-                    results: [[path: 'allure-results']]
-                ])
+                // Optional: additional allure call here, but main reporting is in post
             }
         }
     }
 
     post {
-    always {
-        // Record JUnit results first
-        junit 'reports/**/*.xml'
+        always {
+            // Record JUnit results first
+            junit 'reports/**/*.xml'
 
-        // Allure reporting
-        step([$class: 'AllureReportPublisher', results: [[path: 'allure-results']]])
+            // Allure reporting
+            step([$class: 'AllureReportPublisher', results: [[path: 'allure-results']]])
+        }
     }
-}
 }
