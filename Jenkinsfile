@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-    PATH = "/usr/local/bin:$PATH:./node_modules/.bin",
+    PATH = "/usr/local/bin:$PATH:./node_modules/.bin"
     HEADLESS = 'true'
 }
 
