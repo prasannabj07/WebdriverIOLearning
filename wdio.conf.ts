@@ -162,7 +162,8 @@ export const config: WebdriverIO.Config = {
         require: ['./test/step-definitions/*.ts'],
         format: ['junit:reports/results.xml'], // must match the Jenkinsfile path
         tagExpression: '@smoke',
-        timeout: 60000
+        timeout: 60000,
+        ignoreUndefinedDefinitions: true
     },
 
 

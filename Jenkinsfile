@@ -58,14 +58,11 @@ pipeline {
 
     post {
     always {
-        // Record JUnit XML
+        // Record JUnit results first
         junit 'reports/**/*.xml'
 
-        // Generate Allure report
-        allure([
-            includeProperties: false,
-            results: [[path: 'allure-results']]
-        ])
+        // Allure reporting
+        step([$class: 'AllureReportPublisher', results: [[path: 'allure-results']]])
     }
 }
 }
