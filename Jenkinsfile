@@ -58,10 +58,14 @@ pipeline {
 
     post {
     always {
+        // Record JUnit XML
         junit 'reports/**/*.xml'
-    }
-    failure {
-        echo "Build failed, no mail configured."
+
+        // Generate Allure report
+        allure([
+            includeProperties: false,
+            results: [[path: 'allure-results']]
+        ])
     }
 }
 }
