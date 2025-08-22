@@ -33,11 +33,6 @@ pipeline {
             }
         }
 
-        stage('Publish Reports') {
-            steps {
-                // Optional: additional allure call here, but main reporting is in post
-            }
-        }
     }
 
     post {
